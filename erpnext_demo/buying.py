@@ -7,6 +7,7 @@ import frappe
 from frappe.utils.make_random import how_many, can_make, get_random
 from frappe.utils import cstr
 from frappe.desk import query_report
+from erpnext_demo import get_settings
 
 def run_purchase(current_date):
 	# make material requests for purchase items that have negative projected qtys
@@ -84,8 +85,9 @@ def make_subcontract(current_date):
 	make_material_request(current_date, po.items[0].item_code, po.items[0].qty)
 
 	# transfer material for sub-contract
+	settings = get_settings()
 	stock_entry = frappe.get_doc(make_stock_entry(po.name, po.items[0].item_code))
-	stock_entry.from_warehouse = "Stores - WP"
-	stock_entry.to_warehouse = "Supplier - WP"
+	stock_entry.from_warehouse = "Stores - {0}".format(settings.company_abbr)
+	stock_entry.to_warehouse = "Supplier - {0}".format(settings.company_abbr)
 	stock_entry.insert()
 

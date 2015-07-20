@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _, throw
 import erpnext_demo.make_demo
+from erpnext_demo import demo_types
 
 def on_login(login_manager):
 	from frappe.utils import validate_email_add
@@ -26,9 +27,30 @@ def check_if_not_setup():
 
 def make_demo():
 	frappe.flags.mute_emails = 1
+	demo_type = prompt_for_demo_type()
 	make_demo_user()
 	make_demo_login_page()
-	erpnext_demo.make_demo.make()
+	erpnext_demo.make_demo.make(demo_type)
+
+def prompt_for_demo_type():
+	print "What type of ERPNext Demo do you want to install?"
+	for i, opt in enumerate(demo_types):
+		print "{0}. {1}".format(i+1, opt["name"])
+
+	i = 0
+	while not (0 < i <= len(demo_types)):
+		user_input = raw_input("Select a type from 1 to {0} (Default {1}): "\
+			.format(len(demo_types), "1. {0}".format(demo_types[0]["name"])))
+
+		try:
+			i = 1 if not user_input else int(user_input)
+		except (ValueError, TypeError):
+			continue
+
+	demo_type = demo_types[i - 1]["name"]
+	print "You have selected '{0}'".format(demo_type)
+
+	return demo_type
 
 def make_demo_user():
 	from frappe.auth import _update_password

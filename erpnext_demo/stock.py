@@ -10,6 +10,7 @@ from frappe.desk import query_report
 from erpnext_demo import settings
 from erpnext.stock.stock_ledger import NegativeStockError
 from erpnext.stock.doctype.serial_no.serial_no import SerialNoRequiredError, SerialNoQtyError
+from erpnext.stock.doctype.stock_reconciliation.stock_reconciliation import EmptyStockReconciliationItemsError
 
 def run_stock(current_date):
 	make_purchase_receipt(current_date)
@@ -26,7 +27,7 @@ def make_purchase_receipt(current_date):
 			pr = frappe.get_doc(make_purchase_receipt(po))
 
 			if pr.is_subcontracted=="Yes":
-				pr.supplier_warehouse = "Supplier - WP"
+				pr.supplier_warehouse = "Supplier - {0}".format(settings.company_abbr)
 
 			pr.posting_date = current_date
 			pr.fiscal_year = cstr(current_date.year)
@@ -65,7 +66,7 @@ def make_stock_reconciliation(current_date):
 	if can_make("Stock Reconciliation"):
 		stock_reco = frappe.new_doc("Stock Reconciliation")
 		stock_reco.posting_date = current_date
-		stock_reco.get_items_for("Stores - WP")
+		stock_reco.get_items_for("Stores - {0}".format(settings.company_abbr))
 		if stock_reco.items:
 			for item in stock_reco.items:
 				if item.qty:
@@ -74,7 +75,8 @@ def make_stock_reconciliation(current_date):
 				stock_reco.insert()
 				stock_reco.submit()
 				frappe.db.commit()
-			except OpeningEntryAccountError:
+			except (OpeningEntryAccountError,
+					EmptyStockReconciliationItemsError):
 				frappe.db.rollback()
 
 def submit_draft_stock_entries(current_date):

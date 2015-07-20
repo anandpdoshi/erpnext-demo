@@ -18,7 +18,7 @@ def run_hr(current_date):
 		process_payroll.fiscal_year = year
 		process_payroll.create_sal_slip()
 		process_payroll.submit_salary_slip()
-		r = process_payroll.make_journal_entry("Salary - WP")
+		r = process_payroll.make_journal_entry("Salary - {0}".format(settings.company_abbr))
 
 		journal_entry = frappe.get_doc(r)
 		journal_entry.cheque_no = random_string(10)

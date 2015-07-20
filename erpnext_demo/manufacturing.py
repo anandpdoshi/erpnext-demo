@@ -25,7 +25,7 @@ def run_manufacturing(current_date):
 	# submit production orders
 	for pro in frappe.db.get_values("Production Order", {"docstatus": 0}, "name"):
 		b = frappe.get_doc("Production Order", pro[0])
-		b.wip_warehouse = "Work in Progress - WP"
+		b.wip_warehouse = "Work in Progress - {0}".format(settings.company_abbr)
 		b.submit()
 		frappe.db.commit()
 

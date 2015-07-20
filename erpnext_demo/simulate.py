@@ -82,5 +82,3 @@ def make_message(current_date):
 	d.comment_doctype = 'Message'
 	d.comment = comments[random.randint(0, len(comments) - 1)]
 	d.insert(ignore_permissions=True)
-
-
